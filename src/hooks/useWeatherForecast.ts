@@ -1,4 +1,5 @@
-"use client";
+﻿"use client";
+
 
 import { useState, useEffect } from "react";
 
@@ -56,23 +57,55 @@ interface UseWeatherForecastResult {
   error: string | null;
   refreshForecast: (lat?: number, lon?: number) => void;
   currentLocation: string | null;
+  /** Actual coordinates used for the last fetch (from user GPS or manual input) */
+  actualCoords: { lat: number; lon: number } | null;
 }
 
-// OpenWeather API configuration
-// IMPORTANT: On the client, env vars are substituted at build-time.
-// To avoid stale values during HMR / dev edits, read the key at call-time (inside fetchForecast).
+// Reverse-geocode using OpenStreetMap Nominatim (free, no key required).
+// Returns a human-readable locality name (kecamatan / kelurahan level when available).
+// This fixes the issue where OWM snaps coordinates to a wrong nearest city
+// (e.g. Bojongsoang -> Pameungpeuk).
+async function reverseGeocode(lat: number, lon: number): Promise<string> {
+  try {
+    const url = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&zoom=14&addressdetails=1&accept-language=id`;
+    const res = await fetch(url, { headers: { "Accept-Language": "id" } });
+    if (!res.ok) throw new Error("Nominatim error");
+    const data = await res.json();
+    const addr = (data.address ?? {}) as Record<string, string>;
+    // Pick the most granular available label
+    const locality =
+      addr.village ||
+      addr.suburb ||
+      addr.neighbourhood ||
+      addr.quarter ||
+      addr.hamlet ||
+      addr.city_district ||
+      addr.county ||
+      addr.municipality ||
+      addr.town ||
+      addr.city ||
+      (data.display_name as string | undefined)?.split(",")[0] ||
+      "Lokasi Saya";
+    return locality;
+  } catch {
+    return "Lokasi Saya";
+  }
+}
 
 export function useWeatherForecast(): UseWeatherForecastResult {
   const [forecast, setForecast] = useState<WeatherForecast | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [currentLocation, setCurrentLocation] = useState<string | null>(null);
+  const [actualCoords, setActualCoords] = useState<{ lat: number; lon: number } | null>(null);
 
   // Fetch forecast data from OpenWeather API
   const fetchForecast = async (lat: number, lon: number) => {
     try {
       setLoading(true);
       setError(null);
+      // Save the real coordinates immediately so the map updates even before fetch completes
+      setActualCoords({ lat, lon });
 
       // Get API key from server-side env via internal API route.
       // This avoids client-side env substitution issues in dev/HMR on Windows.
@@ -87,18 +120,27 @@ export function useWeatherForecast(): UseWeatherForecastResult {
         );
       }
 
-      // Call OpenWeather through our server proxy so the key never needs to exist in client JS.
-      const url = `/api/weather-forecast?lat=${lat}&lon=${lon}`;
-      
-      const response = await fetch(url);
-      
+      // Run weather fetch and reverse geocoding in parallel for speed
+      const [response, locationName] = await Promise.all([
+        fetch(`/api/weather-forecast?lat=${lat}&lon=${lon}`, { cache: "no-store" }),
+        reverseGeocode(lat, lon),
+      ]);
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       const data: WeatherForecast = await response.json();
+
+      // Override city.name with the real reverse-geocoded locality so the UI
+      // shows the actual place the user is in (e.g. "Bojongsoang"), not the
+      // nearest city in OpenWeather's database (e.g. "Pameungpeuk").
+      data.city.name = locationName;
+      // Keep coord as the actual user coords, not OWM snapped coords
+      data.city.coord = { lat, lon };
+
       setForecast(data);
-      setCurrentLocation(data.city.name); // Set city name as current location
+      setCurrentLocation(locationName);
       setError(null);
     } catch (err) {
       console.error("Error fetching weather forecast:", err);
@@ -119,19 +161,18 @@ export function useWeatherForecast(): UseWeatherForecastResult {
         },
         (err) => {
           console.error("Geolocation error:", err);
-          // Default location (Jakarta, Indonesia) if geolocation fails
-          const defaultLat = -6.2088;
-          const defaultLon = 106.8456;
+          // Default location (Bandung, Indonesia) if geolocation fails
+          const defaultLat = -6.9175;
+          const defaultLon = 107.6191;
           fetchForecast(defaultLat, defaultLon);
-          setError("Tidak dapat mengakses lokasi. Menggunakan Jakarta sebagai default.");
+          setError("Tidak dapat mengakses lokasi. Menggunakan Bandung sebagai default.");
         }
       );
     } else {
-      // Geolocation not supported, use default location
-      const defaultLat = -6.2088;
-      const defaultLon = 106.8456;
+      const defaultLat = -6.9175;
+      const defaultLon = 107.6191;
       fetchForecast(defaultLat, defaultLon);
-      setError("Geolocation tidak didukung. Menggunakan Jakarta sebagai default.");
+      setError("Geolocation tidak didukung. Menggunakan Bandung sebagai default.");
     }
   };
 
@@ -156,5 +197,6 @@ export function useWeatherForecast(): UseWeatherForecastResult {
     error,
     refreshForecast,
     currentLocation,
+    actualCoords,
   };
 }

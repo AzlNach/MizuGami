@@ -4,10 +4,18 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
+import TeamSection from "@/components/TeamSection";
+import AuthModal from "@/components/AuthModal";
+
+type AuthTab = "login" | "register";
 
 export default function LandingPage() {
   const [isVisible, setIsVisible] = useState(false);
+  const [authTab, setAuthTab] = useState<AuthTab>("login");
+  const [showAuth, setShowAuth] = useState(false);
   const { t } = useLanguage();
+
+  const openAuth = (tab: AuthTab) => { setAuthTab(tab); setShowAuth(true); };
 
   useEffect(() => {
     setIsVisible(true);
@@ -15,6 +23,12 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-white">
+
+      {/* Auth Modal */}
+      {showAuth && (
+        <AuthModal defaultTab={authTab} onClose={() => setShowAuth(false)} />
+      )}
+
       {/* Hero Section */}
       <div className="relative overflow-hidden">
         {/* Animated Background */}
@@ -39,14 +53,14 @@ export default function LandingPage() {
               </div>
             </div>
             
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
               <LanguageSwitcher />
-              <Link 
-                href="/dashboard"
-                className="px-6 py-3 bg-[#89986D] text-white rounded-xl font-semibold hover:bg-[#9CAB84] transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+              <button
+                onClick={() => openAuth("login")}
+                className="px-6 py-2.5 bg-[#89986D] text-white rounded-xl font-semibold text-sm hover:bg-[#9CAB84] transition-all duration-200 shadow-md hover:shadow-lg"
               >
-                {t('landing.cta')} →
-              </Link>
+                Get Started →
+              </button>
             </div>
           </nav>
 
@@ -213,6 +227,9 @@ export default function LandingPage() {
           </div>
         </div>
       </div>
+
+      {/* Get In Touch - Team Section */}
+      <TeamSection />
 
       {/* CTA Section */}
       <div className="py-20 bg-gradient-to-br from-[#89986D] to-[#9CAB84]">

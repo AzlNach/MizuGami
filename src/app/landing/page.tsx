@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { useEffect, useState } from "react";
+import TeamSection from "@/components/TeamSection";
 
 export default function LandingPage() {
   const [isVisible, setIsVisible] = useState(false);
@@ -208,92 +208,7 @@ export default function LandingPage() {
       </div>
 
       {/* Get In Touch - Team Section */}
-      <div id="team" className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <div className="inline-block px-4 py-2 bg-[#F6F0D7] rounded-full text-[#89986D] font-semibold text-sm mb-4">
-              👥 Our Team
-            </div>
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Get In Touch</h2>
-            <p className="text-xl text-gray-600">Kenali tim di balik proyek Smart Agriculture IoT</p>
-          </div>
-
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8">
-            {[
-              {
-                name: "Azel",
-                role: "Project Leader",
-                photo: "/Azel.svg",
-                linkedin: "https://www.linkedin.com/in/azel-nacherly-0ab66b310/",
-              },
-              {
-                name: "Handra",
-                role: "Hardware Engineer",
-                photo: "/Handra.svg",
-                linkedin: "https://www.linkedin.com/in/handra-putratama-a07a5b322/",
-              },
-              {
-                name: "Matt",
-                role: "Backend Developer",
-                photo: "/Matt.svg",
-                linkedin: "https://www.linkedin.com/in/matthew-bentardi-818b08322/",
-              },
-              {
-                name: "Karman",
-                role: "Frontend Developer",
-                photo: "/Karman.svg",
-                linkedin: "https://www.linkedin.com/in/karman-951a24322/",
-              },
-              {
-                name: "Avni",
-                role: "UI/UX Designer",
-                photo: "/Avni.svg",
-                linkedin: "https://www.linkedin.com/in/avni-natasya-a72a78322/",
-              },
-              {
-                name: "Lijona",
-                role: "Data Analyst",
-                photo: "/Lijona.svg",
-                linkedin: "https://www.linkedin.com/in/lijona-lorensa-ab2a62322/",
-              },
-            ].map((member, index) => (
-              <div
-                key={index}
-                className="group flex flex-col items-center text-center"
-              >
-                {/* Photo */}
-                <div className="relative w-28 h-28 mb-4 rounded-full overflow-hidden border-4 border-[#F6F0D7] group-hover:border-[#C5D89D] transition-all duration-300 shadow-lg group-hover:shadow-xl transform group-hover:scale-105">
-                  <Image
-                    src={member.photo}
-                    alt={member.name}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-
-                {/* Name */}
-                <h3 className="text-lg font-bold text-gray-900 mb-1">{member.name}</h3>
-
-                {/* Role */}
-                <p className="text-sm text-[#89986D] font-semibold mb-3">{member.role}</p>
-
-                {/* LinkedIn */}
-                <a
-                  href={member.linkedin}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#F6F0D7] text-[#89986D] rounded-full text-sm font-medium hover:bg-[#89986D] hover:text-white transition-all duration-300"
-                >
-                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
-                  </svg>
-                  LinkedIn
-                </a>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
+      <TeamSection />
 
       {/* CTA Section */}
       <div className="py-20 bg-gradient-to-br from-[#89986D] to-[#9CAB84]">

@@ -77,18 +77,24 @@ type DailyForecastResponse = {
   list: DailyForecastDay[];
 };
 
-function toDayKey(unixSeconds: number) {
-  const d = new Date(unixSeconds * 1000);
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+// WIB = UTC+7. Use timezone offset from OWM response when available (passed as param),
+// but since we don't have it here, default to WIB (+7h) for Indonesia.
+// This fixes wrong day grouping when UTC midnight != local midnight.
+function toDayKey(unixSeconds: number, tzOffsetSeconds = 7 * 3600) {
+  const localMs = (unixSeconds + tzOffsetSeconds) * 1000;
+  const d = new Date(localMs);
+  // Use UTC getters on the shifted date so we read the LOCAL date fields
+  return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}-${String(d.getUTCDate()).padStart(2, "0")}`;
 }
 
-function pickNoonish(items: OWMForecastItem[]) {
-  // Pick item closest to 12:00 local time for a representative weather description.
+function pickNoonish(items: OWMForecastItem[], tzOffsetSeconds = 7 * 3600) {
+  // Pick item closest to 12:00 LOCAL time for a representative weather description.
   const targetHour = 12;
   let best = items[0];
   let bestDiff = Infinity;
   for (const it of items) {
-    const h = new Date(it.dt * 1000).getHours();
+    const localMs = (it.dt + tzOffsetSeconds) * 1000;
+    const h = new Date(localMs).getUTCHours();
     const diff = Math.abs(h - targetHour);
     if (diff < bestDiff) {
       best = it;
@@ -99,9 +105,11 @@ function pickNoonish(items: OWMForecastItem[]) {
 }
 
 function aggregateToDaily(data: OWMForecastResponse): DailyForecastResponse {
+  // Use the timezone offset from OWM response (in seconds) so day-grouping uses local time
+  const tzOffset = data.city.timezone ?? 7 * 3600;
   const byDay = new Map<string, OWMForecastItem[]>();
   for (const it of data.list) {
-    const key = toDayKey(it.dt);
+    const key = toDayKey(it.dt, tzOffset);
     const arr = byDay.get(key) ?? [];
     arr.push(it);
     byDay.set(key, arr);
@@ -111,7 +119,7 @@ function aggregateToDaily(data: OWMForecastResponse): DailyForecastResponse {
     .sort((a, b) => a[0].localeCompare(b[0]))
     .slice(0, 5) // Free endpoint provides ~5 days
     .map(([, items]) => {
-      const rep = pickNoonish(items);
+      const rep = pickNoonish(items, tzOffset);
 
       const min = Math.min(...items.map((x) => x.main.temp_min));
       const max = Math.max(...items.map((x) => x.main.temp_max));

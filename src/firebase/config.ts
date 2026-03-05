@@ -1,5 +1,6 @@
 import { initializeApp, getApps, FirebaseApp } from "firebase/app";
 import { getDatabase, Database } from "firebase/database";
+import { getAuth, Auth } from "firebase/auth";
 
 // Firebase configuration using environment variables
 // Do NOT hardcode API keys - use .env.local for local development
@@ -16,14 +17,14 @@ const firebaseConfig = {
 
 // Initialize Firebase (prevent multiple instances)
 let app: FirebaseApp;
-const database: Database = (() => {
-  if (!getApps().length) {
-    app = initializeApp(firebaseConfig);
-  } else {
-    app = getApps()[0];
-  }
 
-  return getDatabase(app);
-})();
+if (!getApps().length) {
+  app = initializeApp(firebaseConfig);
+} else {
+  app = getApps()[0];
+}
 
-export { app, database };
+const database: Database = getDatabase(app);
+const auth: Auth = getAuth(app);
+
+export { app, database, auth };
