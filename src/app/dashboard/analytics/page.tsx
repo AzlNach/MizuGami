@@ -7,10 +7,12 @@ import AnalysisSchedulePanel from "@/components/AnalysisSchedulePanel";
 import AnalysisHistoryPanel from "@/components/AnalysisHistoryPanel";
 import { useAIAnalysis } from "@/hooks/useAIAnalysis";
 import { useSoilMoistureData } from "@/hooks/useSoilMoistureData";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function AnalyticsPage() {
   const { data, loading, error } = useSoilMoistureData();
   const { analysisHistory, isLoadingHistory, loadAnalysisHistory } = useAIAnalysis();
+  const { t } = useLanguage();
   const [currentTime, setCurrentTime] = useState(new Date());
 
   // Update current time every second
@@ -35,7 +37,7 @@ export default function AnalyticsPage() {
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-[#89986D]"></div>
-          <p className="mt-4 text-gray-600 text-lg">Memuat analisis data...</p>
+          <p className="mt-4 text-gray-600 text-lg">{t('analytics.loadingData')}</p>
         </div>
       </div>
     );
@@ -47,13 +49,13 @@ export default function AnalyticsPage() {
         <div className="bg-white p-8 rounded-2xl shadow-xl max-w-md">
           <div className="text-center">
             <div className="text-6xl mb-4">⚠️</div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">Error</h2>
+            <h2 className="text-2xl font-bold text-gray-800 mb-2">{t('common.error')}</h2>
             <p className="text-gray-600 mb-4">{error}</p>
             <button
               onClick={() => window.location.reload()}
               className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
             >
-              Muat Ulang
+              {t('analytics.errorReload')}
             </button>
           </div>
         </div>
@@ -66,8 +68,8 @@ export default function AnalyticsPage() {
       {/* Header */}
       <div className="content-header">
         <div className="header-left">
-          <h1>📊 Analisis Data</h1>
-          <p>AI-Powered Soil Moisture Analysis & Recommendations</p>
+          <h1>📊 {t('analytics.title')}</h1>
+          <p>{t('analytics.subtitle')}</p>
         </div>
         <div className="header-right">
           <div className="header-date">
@@ -97,7 +99,7 @@ export default function AnalyticsPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <div className="bg-white rounded-2xl shadow-xl p-6 border-t-4 border-[#9CAB84]">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-gray-600 text-sm font-medium">Kelembapan Tanah</span>
+            <span className="text-gray-600 text-sm font-medium">{t('analytics.soilMoisture')}</span>
             <span className="text-3xl">💧</span>
           </div>
           <div className="text-3xl font-bold text-gray-800">{data.moisture}%</div>
@@ -105,7 +107,7 @@ export default function AnalyticsPage() {
 
         <div className="bg-white rounded-2xl shadow-xl p-6 border-t-4 border-[#89986D]">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-gray-600 text-sm font-medium">Suhu Udara</span>
+            <span className="text-gray-600 text-sm font-medium">{t('analytics.airTemp')}</span>
             <span className="text-3xl">🌡️</span>
           </div>
           <div className="text-3xl font-bold text-gray-800">{data.airTemp.toFixed(1)}°C</div>
@@ -113,7 +115,7 @@ export default function AnalyticsPage() {
 
         <div className="bg-white rounded-2xl shadow-xl p-6 border-t-4 border-[#C5D89D]">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-gray-600 text-sm font-medium">Kelembapan Udara</span>
+            <span className="text-gray-600 text-sm font-medium">{t('analytics.airHumidity')}</span>
             <span className="text-3xl">💨</span>
           </div>
           <div className="text-3xl font-bold text-gray-800">{data.airHumidity}%</div>
@@ -123,7 +125,7 @@ export default function AnalyticsPage() {
           data.weather === "Hujan" ? "border-[#9CAB84]" : "border-[#F6F0D7]"
         }`}>
           <div className="flex items-center justify-between mb-2">
-            <span className="text-gray-600 text-sm font-medium">Kondisi Cuaca</span>
+            <span className="text-gray-600 text-sm font-medium">{t('analytics.weather')}</span>
             <span className="text-3xl">{data.weather === "Hujan" ? "🌧️" : "☀️"}</span>
           </div>
           <div className="text-2xl font-bold text-gray-800">{data.weather}</div>

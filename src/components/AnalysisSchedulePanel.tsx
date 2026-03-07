@@ -1,6 +1,7 @@
 "use client";
 
 import { useAIAnalysis, ScheduleInterval } from "@/hooks/useAIAnalysis";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function AnalysisSchedulePanel() {
   const {
@@ -12,6 +13,7 @@ export default function AnalysisSchedulePanel() {
     getNextAnalysisTime,
   } = useAIAnalysis();
 
+  const { t } = useLanguage();
   const scheduleOptions: ScheduleInterval[] = ["manual", "3h", "6h", "12h", "24h", "3d", "7d", "30d"];
 
   return (
@@ -23,8 +25,8 @@ export default function AnalysisSchedulePanel() {
             ⏰
           </div>
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">Jadwal Analisis</h2>
-            <p className="text-sm text-gray-600">Atur frekuensi analisis AI</p>
+            <h2 className="text-2xl font-bold text-gray-900">{t('analytics.schedule.title')}</h2>
+            <p className="text-sm text-gray-600">{t('analytics.schedule.subtitle')}</p>
           </div>
         </div>
       </div>
@@ -33,7 +35,7 @@ export default function AnalysisSchedulePanel() {
       <div className="p-6 flex-1 flex flex-col">
         {/* Schedule Options */}
         <div className="mb-6">
-          <h4 className="text-sm font-semibold text-gray-600 mb-3 uppercase tracking-wide">Pilih Interval</h4>
+          <h4 className="text-sm font-semibold text-gray-600 mb-3 uppercase tracking-wide">{t('analytics.schedule.selectInterval')}</h4>
           <div className="grid grid-cols-2 gap-2">
             {scheduleOptions.map((option) => (
               <button
@@ -60,17 +62,17 @@ export default function AnalysisSchedulePanel() {
           <div className="mb-6 p-4 bg-[#F6F0D7] rounded-xl border-2 border-[#C5D89D]">
             <div className="flex items-center space-x-3 mb-2">
               <div className="w-2.5 h-2.5 bg-[#9CAB84] rounded-full animate-pulse"></div>
-              <span className="text-sm text-gray-900 font-bold">Analisis Otomatis Aktif</span>
+              <span className="text-sm text-gray-900 font-bold">{t('analytics.schedule.autoActive')}</span>
             </div>
             <p className="text-sm text-[#89986D] font-medium ml-5">
-              Berikutnya: {getNextAnalysisTime()}
+              {t('analytics.schedule.next')} {getNextAnalysisTime()}
             </p>
           </div>
         )}
 
         {/* Manual Analysis Button */}
         <div>
-          <h4 className="text-sm font-semibold text-gray-600 mb-3 uppercase tracking-wide">Analisis Manual</h4>
+          <h4 className="text-sm font-semibold text-gray-600 mb-3 uppercase tracking-wide">{t('analytics.schedule.manualAnalysis')}</h4>
           <button
             onClick={() => runAnalysis(true)}
             disabled={isAnalyzing}
@@ -86,14 +88,14 @@ export default function AnalysisSchedulePanel() {
             {isAnalyzing ? (
               <>
                 <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-gray-400"></div>
-                <span>Menganalisis...</span>
+                <span>{t('analytics.analyzing')}</span>
               </>
             ) : (
               <>
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
-                <span>Analisis Sekarang</span>
+                <span>{t('analytics.analyzeNow')}</span>
               </>
             )}
           </button>

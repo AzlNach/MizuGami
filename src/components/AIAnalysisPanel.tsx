@@ -2,6 +2,7 @@
 
 import { useAIAnalysis } from "@/hooks/useAIAnalysis";
 import { useState } from "react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function AIAnalysisPanel() {
   const {
@@ -10,6 +11,7 @@ export default function AIAnalysisPanel() {
     error,
   } = useAIAnalysis();
 
+  const { t } = useLanguage();
   const [showFullAnalysis, setShowFullAnalysis] = useState(false);
 
   // Helper function to process inline markdown (bold, italic)
@@ -58,7 +60,7 @@ export default function AIAnalysisPanel() {
     if (!text) {
       return (
         <div className="text-gray-500 italic text-center py-8">
-          <p>Tidak ada analisis tersedia.</p>
+          <p>{t('analytics.ai.noAnalysis')}</p>
         </div>
       );
     }
@@ -75,8 +77,8 @@ export default function AIAnalysisPanel() {
       const isSubBullet = line.trim().match(/^\s{2,}[-•*]\s+(.+)/);
       const isItalic = line.match(/^_(.+)_$/);
       const isDivider = line.match(/^[-_]{2,}$/);
-      const isWarning = line.includes('⚠️') || line.includes('PERLU PERHATIAN') || line.includes('PRIORITAS');
-      const isSuccess = line.includes('✅') || line.includes('SANGAT BAIK') || line.includes('BAIK');
+      const isWarning = line.includes('⚠️') || line.includes('PERLU PERHATIAN') || line.includes('PRIORITAS') || line.includes('NEEDS ATTENTION') || line.includes('PRIORITY');
+      const isSuccess = line.includes('✅') || line.includes('SANGAT BAIK') || line.includes('BAIK') || line.includes('VERY GOOD') || line.includes('GOOD');
       const isEmpty = line.trim() === '';
 
       if (isEmpty) {
@@ -156,8 +158,8 @@ export default function AIAnalysisPanel() {
       if (isBold) {
         const boldText = isBold[1];
         const restText = isBold[2];
-        const isWarningBold = boldText.includes('PERLU PERHATIAN') || boldText.includes('PRIORITAS');
-        const isSuccessBold = boldText.includes('SANGAT BAIK') || boldText.includes('BAIK');
+        const isWarningBold = boldText.includes('PERLU PERHATIAN') || boldText.includes('PRIORITAS') || boldText.includes('NEEDS ATTENTION') || boldText.includes('PRIORITY');
+        const isSuccessBold = boldText.includes('SANGAT BAIK') || boldText.includes('BAIK') || boldText.includes('VERY GOOD') || boldText.includes('GOOD');
         
         return (
           <div key={index} className={`my-3 p-4 rounded-xl border-2 ${
@@ -299,51 +301,49 @@ export default function AIAnalysisPanel() {
                   📊
                 </div>
                 <div>
-                  <h3 className="text-2xl font-bold text-gray-900">Hasil Analisis AI</h3>
-                  <p className="text-sm text-gray-600 mt-0.5">Rekomendasi sistem irigasi cerdas</p>
+                  <h3 className="text-2xl font-bold text-gray-900">{t('analytics.ai.title')}</h3>
+                  <p className="text-sm text-gray-600 mt-0.5">{t('analytics.ai.subtitle')}</p>
                 </div>
               </div>
               <div className="px-4 py-2 bg-white rounded-xl border-2 border-[#C5D89D] shadow-sm">
-                <span className="text-xs text-gray-500 font-medium block mb-0.5">Periode Data</span>
+                <span className="text-xs text-gray-500 font-medium block mb-0.5">{t('analytics.ai.dataPeriod')}</span>
                 <span className="text-sm text-[#89986D] font-bold">{lastAnalysis?.timeRange || 'N/A'}</span>
               </div>
             </div>
           </div>
 
           {/* Statistics Grid - Minimalist Cards */}
-          <div className="p-6 md:p-8">
+              <div className="p-6 md:p-8">
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
               <div className="group relative bg-gradient-to-br from-[#F6F0D7] to-[#F6F0D7]/50 p-5 rounded-2xl border border-[#C5D89D]/50 hover:shadow-md transition-all">
                 <div className="absolute top-3 right-3 w-8 h-8 bg-[#89986D]/10 rounded-lg flex items-center justify-center text-lg">
                   📊
                 </div>
-                <div className="text-xs text-[#89986D] font-semibold uppercase tracking-wide mb-2">Rata-rata</div>
+                <div className="text-xs text-[#89986D] font-semibold uppercase tracking-wide mb-2">{t('analytics.ai.average')}</div>
                 <div className="text-3xl font-bold text-[#89986D]">{lastAnalysis.statistics?.rata_rata ?? 0}<span className="text-xl">%</span></div>
               </div>
               <div className="group relative bg-gradient-to-br from-[#C5D89D]/40 to-[#C5D89D]/20 p-5 rounded-2xl border border-[#C5D89D]/50 hover:shadow-md transition-all">
                 <div className="absolute top-3 right-3 w-8 h-8 bg-[#89986D]/10 rounded-lg flex items-center justify-center text-lg">
                   ⬆️
                 </div>
-                <div className="text-xs text-[#89986D] font-semibold uppercase tracking-wide mb-2">Maksimum</div>
+                <div className="text-xs text-[#89986D] font-semibold uppercase tracking-wide mb-2">{t('analytics.ai.maximum')}</div>
                 <div className="text-3xl font-bold text-[#89986D]">{lastAnalysis.statistics?.maksimum ?? 0}<span className="text-xl">%</span></div>
               </div>
               <div className="group relative bg-gradient-to-br from-[#F6F0D7] to-[#F6F0D7]/50 p-5 rounded-2xl border border-[#C5D89D]/50 hover:shadow-md transition-all">
                 <div className="absolute top-3 right-3 w-8 h-8 bg-[#89986D]/10 rounded-lg flex items-center justify-center text-lg">
                   ⬇️
                 </div>
-                <div className="text-xs text-[#89986D] font-semibold uppercase tracking-wide mb-2">Minimum</div>
+                <div className="text-xs text-[#89986D] font-semibold uppercase tracking-wide mb-2">{t('analytics.ai.minimum')}</div>
                 <div className="text-3xl font-bold text-[#89986D]">{lastAnalysis.statistics?.minimum ?? 0}<span className="text-xl">%</span></div>
               </div>
               <div className="group relative bg-gradient-to-br from-[#C5D89D]/30 to-[#C5D89D]/20 p-5 rounded-2xl border border-[#C5D89D]/50 hover:shadow-md transition-all">
                 <div className="absolute top-3 right-3 w-8 h-8 bg-[#89986D]/10 rounded-lg flex items-center justify-center text-lg">
                   📈
                 </div>
-                <div className="text-xs text-[#89986D] font-semibold uppercase tracking-wide mb-2">Tren</div>
+                <div className="text-xs text-[#89986D] font-semibold uppercase tracking-wide mb-2">{t('analytics.ai.trend')}</div>
                 <div className="text-3xl font-bold text-[#89986D] capitalize">{lastAnalysis.statistics?.tren ?? 'N/A'}</div>
               </div>
-            </div>
-
-            {/* Pump Usage - Elegant Card */}
+            </div>            {/* Pump Usage - Elegant Card */}
             <div className="bg-gradient-to-r from-[#F6F0D7] to-[#C5D89D]/30 rounded-2xl p-5 mb-6 border border-[#C5D89D]/50">
               <div className="flex items-center justify-between flex-wrap gap-4">
                 <div className="flex items-center space-x-3">
@@ -351,12 +351,12 @@ export default function AIAnalysisPanel() {
                     ⚙️
                   </div>
                   <div>
-                    <h4 className="font-bold text-gray-900 text-base">Penggunaan Pompa</h4>
-                    <p className="text-sm text-gray-600">Aktivasi: <span className="font-bold text-[#89986D]">{lastAnalysis.pumpUsage?.aktivasi ?? 0} kali</span></p>
+                    <h4 className="font-bold text-gray-900 text-base">{t('analytics.ai.pumpUsage')}</h4>
+                    <p className="text-sm text-gray-600">{t('analytics.ai.pumpActivation')} <span className="font-bold text-[#89986D]">{lastAnalysis.pumpUsage?.aktivasi ?? 0} {t('analytics.ai.times')}</span></p>
                   </div>
                 </div>
                 <div className="px-5 py-2.5 bg-[#F6F0D7] border-2 border-[#C5D89D] rounded-xl">
-                  <span className="text-xs text-[#89986D] font-medium block mb-0.5">Persentase Waktu</span>
+                  <span className="text-xs text-[#89986D] font-medium block mb-0.5">{t('analytics.ai.timePercentage')}</span>
                   <span className="text-2xl font-bold text-[#89986D]">{lastAnalysis.pumpUsage?.persentase ?? 0}%</span>
                 </div>
               </div>
@@ -368,7 +368,7 @@ export default function AIAnalysisPanel() {
                 <div className="w-10 h-10 bg-gradient-to-br from-[#9CAB84] to-[#89986D] rounded-xl flex items-center justify-center text-white text-xl shadow-md">
                   🧠
                 </div>
-                <h4 className="font-bold text-xl text-gray-900">Analisis & Rekomendasi AI</h4>
+                <h4 className="font-bold text-xl text-gray-900">{t('analytics.ai.analysisTitle')}</h4>
               </div>
               <div className={`text-gray-700 leading-relaxed space-y-1 ${!showFullAnalysis ? 'max-h-96 overflow-hidden relative' : ''}`}>
                 {formatAnalysis(lastAnalysis?.analysis)}
@@ -383,7 +383,7 @@ export default function AIAnalysisPanel() {
                     onClick={() => setShowFullAnalysis(true)}
                     className="inline-flex items-center space-x-2 px-6 py-2.5 bg-gradient-to-r from-[#9CAB84] to-[#89986D] text-white rounded-xl font-semibold hover:from-[#89986D] hover:to-[#89986D] transition-all shadow-md hover:shadow-lg"
                   >
-                    <span>Lihat Analisis Lengkap</span>
+                    <span>{t('analytics.ai.viewFull')}</span>
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                     </svg>
@@ -400,7 +400,7 @@ export default function AIAnalysisPanel() {
                     <div className="w-6 h-6 bg-sage-light/15 rounded-lg flex items-center justify-center text-xs">
                       📅
                     </div>
-                    <span className="text-gray-600">Dianalisis: <span className="font-semibold text-gray-900">{lastAnalysis.metadata.analyzedAt}</span></span>
+                    <span className="text-gray-600">{t('analytics.ai.analyzedAt')} <span className="font-semibold text-gray-900">{lastAnalysis.metadata.analyzedAt}</span></span>
                   </div>
                 )}
                 {lastAnalysis.metadata?.dataPoints && (
@@ -408,7 +408,7 @@ export default function AIAnalysisPanel() {
                     <div className="w-6 h-6 bg-sage-light/20 rounded-lg flex items-center justify-center text-xs">
                       📊
                     </div>
-                    <span className="text-gray-600"><span className="font-semibold text-gray-900">{lastAnalysis.metadata.dataPoints}</span> data points</span>
+                    <span className="text-gray-600"><span className="font-semibold text-gray-900">{lastAnalysis.metadata.dataPoints}</span> {t('analytics.ai.dataPoints')}</span>
                   </div>
                 )}
               </div>
@@ -424,27 +424,26 @@ export default function AIAnalysisPanel() {
             <div className="w-20 h-20 bg-gradient-to-br from-green-100 to-emerald-100 rounded-3xl flex items-center justify-center text-5xl mx-auto mb-6 shadow-inner">
               🤖
             </div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-3">Siap untuk Analisis AI?</h3>
+            <h3 className="text-2xl font-bold text-gray-900 mb-3">{t('analytics.ai.readyTitle')}</h3>
             <p className="text-gray-600 mb-8 max-w-lg mx-auto leading-relaxed">
-              Klik tombol &quot;Analisis Sekarang&quot; untuk mendapatkan rekomendasi AI pertama Anda,
-              atau pilih jadwal otomatis untuk analisis berkala yang lebih efisien.
+              {t('analytics.ai.readyDesc')}
             </p>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl mx-auto mb-8">
               <div className="p-4 bg-[#F6F0D7]/50 rounded-2xl border border-[#C5D89D]">
                 <div className="text-3xl mb-2">📊</div>
-                <div className="text-sm font-semibold text-gray-900 mb-1">Analisis Mendalam</div>
-                <div className="text-xs text-gray-600">Evaluasi pola & tren kelembaban</div>
+                <div className="text-sm font-semibold text-gray-900 mb-1">{t('analytics.ai.deepAnalysis')}</div>
+                <div className="text-xs text-gray-600">{t('analytics.ai.deepAnalysisDesc')}</div>
               </div>
               <div className="p-4 bg-[#F6F0D7] rounded-2xl border border-[#C5D89D]">
                 <div className="text-3xl mb-2">💡</div>
-                <div className="text-sm font-semibold text-gray-900 mb-1">Rekomendasi Cerdas</div>
-                <div className="text-xs text-gray-600">Saran optimalisasi sistem irigasi</div>
+                <div className="text-sm font-semibold text-gray-900 mb-1">{t('analytics.ai.smartRec')}</div>
+                <div className="text-xs text-gray-600">{t('analytics.ai.smartRecDesc')}</div>
               </div>
               <div className="p-4 bg-[#C5D89D]/30 rounded-2xl border border-[#C5D89D]">
                 <div className="text-3xl mb-2">⚙️</div>
-                <div className="text-sm font-semibold text-gray-900 mb-1">Evaluasi Pompa</div>
-                <div className="text-xs text-gray-600">Analisis efisiensi penggunaan</div>
+                <div className="text-sm font-semibold text-gray-900 mb-1">{t('analytics.ai.pumpEval')}</div>
+                <div className="text-xs text-gray-600">{t('analytics.ai.pumpEvalDesc')}</div>
               </div>
             </div>
 
@@ -452,7 +451,7 @@ export default function AIAnalysisPanel() {
               <div className="w-8 h-8 bg-cream0 rounded-lg flex items-center justify-center text-white text-lg">
                 💡
               </div>
-              <span className="text-sm text-gray-700 font-medium">AI akan menganalisis data dari periode waktu yang Anda pilih</span>
+              <span className="text-sm text-gray-700 font-medium">{t('analytics.ai.aiHint')}</span>
             </div>
           </div>
         </div>

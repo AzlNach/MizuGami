@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import { AnalysisHistoryItem } from "@/hooks/useAIAnalysis";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface AnalysisHistoryPanelProps {
   history: AnalysisHistoryItem[];
@@ -13,6 +14,7 @@ export default function AnalysisHistoryPanel({ history, isLoading, onRefresh }: 
   const [selectedItem, setSelectedItem] = useState<AnalysisHistoryItem | null>(null);
   const [showFullAnalysis, setShowFullAnalysis] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const { t } = useLanguage();
 
   // Scroll functions for carousel
   const scrollLeft = () => {
@@ -30,7 +32,7 @@ export default function AnalysisHistoryPanel({ history, isLoading, onRefresh }: 
   // Format analysis text with elegant styling (same as AIAnalysisPanel)
   const formatAnalysis = (text: string | undefined): JSX.Element[] => {
     if (!text) {
-      return [<p key="no-data" className="text-gray-500 italic">Tidak ada analisis tersedia.</p>];
+      return [<p key="no-data" className="text-gray-500 italic">{t('analytics.ai.noAnalysis')}</p>];
     }
 
     const lines = text.split('\n');
@@ -164,8 +166,8 @@ export default function AnalysisHistoryPanel({ history, isLoading, onRefresh }: 
                 📚
               </div>
               <div>
-                <h2 className="text-2xl font-bold text-gray-900">Riwayat Analisis</h2>
-                <p className="text-sm text-gray-600">History analisis AI yang tersimpan</p>
+                <h2 className="text-2xl font-bold text-gray-900">{t('analytics.history.title')}</h2>
+                <p className="text-sm text-gray-600">{t('analytics.history.subtitle')}</p>
               </div>
             </div>
             <button
@@ -174,7 +176,7 @@ export default function AnalysisHistoryPanel({ history, isLoading, onRefresh }: 
               className="px-4 py-2 bg-[#9CAB84] hover:bg-[#89986D] text-white rounded-xl border-2 border-[#C5D89D] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2 shadow-md hover:shadow-lg"
             >
               <span className={isLoading ? 'animate-spin' : ''}>🔄</span>
-              <span className="font-medium">Refresh</span>
+              <span className="font-medium">{t('analytics.history.refresh')}</span>
             </button>
           </div>
         </div>
@@ -184,13 +186,13 @@ export default function AnalysisHistoryPanel({ history, isLoading, onRefresh }: 
           {isLoading ? (
             <div className="text-center py-12">
               <div className="inline-block animate-spin text-4xl mb-4">⏳</div>
-              <p className="text-gray-600">Memuat riwayat analisis...</p>
+              <p className="text-gray-600">{t('analytics.history.loading')}</p>
             </div>
           ) : history.length === 0 ? (
             <div className="text-center py-12">
               <div className="text-6xl mb-4">📭</div>
-              <p className="text-gray-600 text-lg">Belum ada riwayat analisis</p>
-              <p className="text-sm text-gray-500 mt-2">Jalankan analisis pertama untuk melihat riwayat</p>
+              <p className="text-gray-600 text-lg">{t('analytics.history.empty')}</p>
+              <p className="text-sm text-gray-500 mt-2">{t('analytics.history.emptyHint')}</p>
             </div>
           ) : (
             <div className="relative flex-1">
@@ -241,17 +243,17 @@ export default function AnalysisHistoryPanel({ history, isLoading, onRefresh }: 
                     {/* Minimalist Statistics */}
                     <div className="p-4 space-y-3">
                       <div className="flex items-center justify-between">
-                        <span className="text-xs text-gray-600">Rata-rata</span>
+                        <span className="text-xs text-gray-600">{t('analytics.history.average')}</span>
                         <span className="text-lg font-bold text-sage-dark">{item.statistics?.rata_rata || 0}%</span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-xs text-gray-600">Range</span>
+                        <span className="text-xs text-gray-600">{t('analytics.history.range')}</span>
                         <span className="text-sm font-bold text-gray-700">
                           {item.statistics?.minimum || 0}% - {item.statistics?.maksimum || 0}%
                         </span>
                       </div>
                       <div className="flex items-center justify-between pt-2 border-t border-gray-200">
-                        <span className="text-xs text-gray-600">⚙️ Pompa</span>
+                        <span className="text-xs text-gray-600">⚙️ {t('analytics.history.pump')}</span>
                         <span className="text-sm font-bold text-orange-600">{item.pumpUsage?.aktivasi || 0}x</span>
                       </div>
                     </div>
@@ -259,7 +261,7 @@ export default function AnalysisHistoryPanel({ history, isLoading, onRefresh }: 
                     {/* Minimalist View Button */}
                     <div className="px-4 pb-4">
                       <button className="w-full py-2 bg-cream hover:bg-sage-light/20 text-olive rounded-xl text-sm font-medium transition-all border border-sage-light">
-                        Lihat Detail →
+                        {t('analytics.history.viewDetail')}
                       </button>
                     </div>
                   </div>
@@ -304,19 +306,19 @@ export default function AnalysisHistoryPanel({ history, isLoading, onRefresh }: 
               {/* Statistics Grid */}
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                 <div className="bg-gradient-to-br from-blue-50 to-blue-100/50 p-4 rounded-2xl border border-sage-light/50">
-                  <div className="text-xs text-sage-dark font-semibold uppercase tracking-wide mb-2">Rata-rata</div>
+                  <div className="text-xs text-sage-dark font-semibold uppercase tracking-wide mb-2">{t('analytics.modal.average')}</div>
                   <div className="text-3xl font-bold text-olive">{selectedItem.statistics?.rata_rata || 0}<span className="text-xl">%</span></div>
                 </div>
                 <div className="bg-gradient-to-br from-green-50 to-green-100/50 p-4 rounded-2xl border border-sage-light/50">
-                  <div className="text-xs text-olive font-semibold uppercase tracking-wide mb-2">Maksimum</div>
+                  <div className="text-xs text-olive font-semibold uppercase tracking-wide mb-2">{t('analytics.modal.maximum')}</div>
                   <div className="text-3xl font-bold text-olive">{selectedItem.statistics?.maksimum || 0}<span className="text-xl">%</span></div>
                 </div>
                 <div className="bg-gradient-to-br from-orange-50 to-orange-100/50 p-4 rounded-2xl border border-orange-200/50">
-                  <div className="text-xs text-orange-600 font-semibold uppercase tracking-wide mb-2">Minimum</div>
+                  <div className="text-xs text-orange-600 font-semibold uppercase tracking-wide mb-2">{t('analytics.modal.minimum')}</div>
                   <div className="text-3xl font-bold text-orange-700">{selectedItem.statistics?.minimum || 0}<span className="text-xl">%</span></div>
                 </div>
                 <div className="bg-gradient-to-br from-purple-50 to-purple-100/50 p-4 rounded-2xl border border-purple-200/50">
-                  <div className="text-xs text-purple-600 font-semibold uppercase tracking-wide mb-2">Tren</div>
+                  <div className="text-xs text-purple-600 font-semibold uppercase tracking-wide mb-2">{t('analytics.modal.trend')}</div>
                   <div className="text-3xl font-bold text-purple-700 capitalize">{selectedItem.statistics?.tren || 'N/A'}</div>
                 </div>
               </div>
@@ -327,12 +329,12 @@ export default function AnalysisHistoryPanel({ history, isLoading, onRefresh }: 
                   <div className="flex items-center space-x-3">
                     <div className="w-10 h-10 bg-orange-500/10 rounded-xl flex items-center justify-center text-xl">⚙️</div>
                     <div>
-                      <h4 className="font-bold text-gray-900">Penggunaan Pompa</h4>
-                      <p className="text-sm text-gray-600">Aktivasi: <span className="font-bold text-orange-700">{selectedItem.pumpUsage?.aktivasi || 0} kali</span></p>
+                      <h4 className="font-bold text-gray-900">{t('analytics.modal.pumpUsage')}</h4>
+                      <p className="text-sm text-gray-600">{t('analytics.modal.pumpActivation')} <span className="font-bold text-orange-700">{selectedItem.pumpUsage?.aktivasi || 0} {t('analytics.modal.times')}</span></p>
                     </div>
                   </div>
                   <div className="px-5 py-2.5 bg-orange-100 border-2 border-orange-200 rounded-xl">
-                    <span className="text-xs text-orange-600 font-medium block mb-0.5">Persentase Waktu</span>
+                    <span className="text-xs text-orange-600 font-medium block mb-0.5">{t('analytics.modal.timePercentage')}</span>
                     <span className="text-2xl font-bold text-orange-700">{selectedItem.pumpUsage?.persentase || 0}%</span>
                   </div>
                 </div>
@@ -343,13 +345,13 @@ export default function AnalysisHistoryPanel({ history, isLoading, onRefresh }: 
                 <div className="flex items-center justify-between mb-5">
                   <div className="flex items-center space-x-3">
                     <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center text-white text-xl shadow-md">🧠</div>
-                    <h4 className="font-bold text-xl text-gray-900">Analisis & Rekomendasi AI</h4>
+                    <h4 className="font-bold text-xl text-gray-900">{t('analytics.modal.analysisTitle')}</h4>
                   </div>
                   <button
                     onClick={() => setShowFullAnalysis(!showFullAnalysis)}
                     className="px-4 py-2 bg-white border-2 border-gray-200 text-gray-700 rounded-xl text-sm font-medium hover:bg-gray-50 transition-all"
                   >
-                    {showFullAnalysis ? '📖 Tampilkan Ringkas' : '📄 Tampilkan Semua'}
+                    {showFullAnalysis ? `📖 ${t('analytics.modal.showSummary')}` : `📄 ${t('analytics.modal.showFull')}`}
                   </button>
                 </div>
                 <div className={`text-gray-700 leading-relaxed space-y-1 ${!showFullAnalysis ? 'max-h-96 overflow-hidden relative' : ''}`}>
